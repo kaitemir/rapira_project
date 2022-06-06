@@ -17,9 +17,9 @@ def send_activate_code(activate_code: str, email: str):
     )
     
 def send_new_password(email, new_password):
-    title = "hello i reset your password in site SnakeShop"
-    message = f'hello this is your new password: {new_password} on email: {email}'
-    from_email = 'SnakeShop@lalafo.kg'
+    title = "Reset link:"
+    message = f'Your new password: {new_password} from email: {email}'
+    from_email = 'SnakeShop@python.kg'
         
     send_mail(
         title,
