@@ -13,6 +13,8 @@ class ListCreateCategoryView(generics.ListCreateAPIView):
 class ListCategoryView(generics.ListAPIView):
     queryset = Category.objects.all() # Ленивый запрос
     serializer_class = CategorySerializer
+    http_method_names = ['get']
+
 
 
 class RetrieveCategoryView(generics.RetrieveAPIView):
