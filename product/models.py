@@ -20,10 +20,6 @@ class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     
-class ProductImage(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='products/', blank=True, null=True)
-    
 class Review(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,related_name='reviews')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,related_name='reviews')

@@ -1,15 +1,11 @@
 from django.shortcuts import render
-
-from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView, ListAPIView
-
-from product.paginations import ProductPagination
 from .serializers import CategorySerializer
 from .models import Favorite, Product, Likes
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 import django_filters.rest_framework as filters
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .permissions import IsAuthororAdminPermission
@@ -23,9 +19,9 @@ class CategoryCreateView(CreateAPIView):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductDetailSerializer
-    filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
+    filter_backends = (filters.DjangoFilterBackend, OrderingFilter, SearchFilter)
     ordering_fields = ['title', 'price']
-    pagination_class = ProductPagination
+    search_fields = ['title', 'price']
     
     def get_serializer_class(self):
         if self.action == 'list':

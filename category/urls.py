@@ -15,3 +15,4 @@ urlpatterns = [
     path('update/<int:pk>/', UpdateCategoryView.as_view()),
     path('create/', ListCreateCategoryView.as_view()),
 ]
+

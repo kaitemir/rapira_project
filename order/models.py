@@ -1,6 +1,7 @@
 from django.db import models
 
 from cart.models import ShoppingCart
+from product.models import Product
 
 
 class Order(models.Model):
@@ -15,3 +16,6 @@ class Order(models.Model):
     email = models.EmailField()
     pay_choices = models.CharField(choices=PAY_CHOICES, max_length=15)
     order_comments = models.TextField(blank=True, null=True)
+
+
+    
