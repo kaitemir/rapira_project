@@ -2,6 +2,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
 
 from .models import CustomUser
 from .serializers import CustomAuthTokenSerializer, RegisterSerializer
@@ -31,3 +34,12 @@ class ActivateView(APIView):
         user.is_active = True
         user.save()
         return Response("activated!")
+
+class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request):
+        user = request.user
+        token = Token.objects.get(user=user)
+        token.delete()
+        return Response('You are logged out', status=status.HTTP_401_UNAUTHORIZED)

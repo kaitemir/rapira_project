@@ -20,9 +20,9 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
     def get_permissions(self):
-        if self.action in ['create', 'list', 'retrieve']:
+        if self.action in ['create', 'list', 'retrieve', 'delete']:
             return [IsAuthenticated()]
-        elif self.action in ['update', 'partial_update']:
+        elif self.action in ['update', 'partial_update', 'destroy']:
             return [IsAdminUser()]
         else:
             return [DenyAll()]

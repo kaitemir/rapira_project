@@ -9,7 +9,7 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 import django_filters.rest_framework as filters
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .permissions import IsAuthororAdminPermission
-
+from .paginations import ProductPagination
 from .serializers import *
 
 class CategoryCreateView(CreateAPIView):
@@ -21,7 +21,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductDetailSerializer
     filter_backends = (filters.DjangoFilterBackend, OrderingFilter, SearchFilter)
     ordering_fields = ['title', 'price']
-    search_fields = ['title', 'price']
+    search_fields = ['title', 'price', 'category']
+    pagination_class = ProductPagination
     
     def get_serializer_class(self):
         if self.action == 'list':
@@ -69,26 +70,16 @@ class ProductViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated, ]
     
-    def get_permissions(self):
-        if self.action == 'retrieve':
-            return []
-        if self.action == 'create':
-            return [IsAuthenticated()]
-        #update, partial_update, destroy
-        return [IsAuthororAdminPermission()]
-    
-    # def get_serializer_context(self):
-    #     return {request: self.request}
-    
+
 class FavortiteView(ListAPIView):
     queryset = Product.objects.all()
     serializer_class = FavoriteListSerializer
     permission_classes = [IsAuthenticated, ]
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
-        #SELECT * from PRODUCT WHERE user = request.user and Product.favorite == True
-        #                           model   FK                          model   boolean_field
+        #                           model     FK                      model     boolean_field
         queryset = queryset.filter(favorites__user=self.request.user, favorites__favorite=True)
         return queryset
