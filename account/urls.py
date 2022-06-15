@@ -1,11 +1,9 @@
-from django.urls import path
-from .views import LoginView, LogoutAPIView, RegisterView, ActivateView
+from django.urls import path, include
+from rest_framework_simplejwt.views import TokenRefreshView
+from account.views import RegistrationView, ActivationView, LoginView
 
-# http://127.0.0.1:8000/api/v1/account
 urlpatterns = [
-    path("login/", LoginView.as_view()),
-    path("register/", RegisterView.as_view()),
-    path("activate/<str:activate_code>/", ActivateView.as_view()),
-    path('logout/', LogoutAPIView.as_view()),
-
-]
+    path('register/', RegistrationView.as_view()),
+    path('activate/<str:activation_code>', ActivationView.as_view()),
+    path('login/', LoginView.as_view()),
+    path('token/refresh/', TokenRefreshView.as_view()),]

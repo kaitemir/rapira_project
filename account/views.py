@@ -1,45 +1,31 @@
-from django.shortcuts import get_object_or_404
-from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.models import Token
+from rest_framework.generics import get_object_or_404
+from account.serializers import RegistrationSerializer, LoginSerializer
+from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import CustomUser
-from .serializers import CustomAuthTokenSerializer, RegisterSerializer
-from .services.utils import send_activate_code
-
-
-class LoginView(ObtainAuthToken):
-    serializer_class = CustomAuthTokenSerializer
+User = get_user_model()
 
 
-class RegisterView(APIView):
-
+class RegistrationView(APIView):
     def post(self, request):
-        data = request.POST  # (email=adadsd@mail.ru, password =!@#!@$@)
-        serializer = RegisterSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        # serializer.validated_data #dict <---- is_valid()
-        user: CustomUser = serializer.save()
-        send_activate_code(user.activate_code, user.email)
-        return Response(serializer.data)
+        serializer = RegistrationSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            message = "User registered!"
+            return Response(message)
 
 
-class ActivateView(APIView):
-    # http://127.0.0.1:8000/api/v1/account/activate/afghaffafsada
-    def get(self, request, activate_code):
-        user = get_object_or_404(CustomUser, activate_code=activate_code)
+class ActivationView(APIView):
+    def get(self, request, activation_code):
+        user = get_object_or_404(User, activation_code=activation_code)
         user.is_active = True
+        user.activation_code = ''
         user.save()
-        return Response("activated!")
+        return Response('your account is sucessfully activated!', status=status.HTTP_200_OK)
 
-class LogoutAPIView(APIView):
-    permission_classes = [IsAuthenticated, ]
 
-    def get(self, request):
-        user = request.user
-        token = Token.objects.get(user=user)
-        token.delete()
-        return Response('You are logged out', status=status.HTTP_401_UNAUTHORIZED)
+class LoginView(TokenObtainPairView):
+    serializer_class = LoginSerializer

@@ -1,54 +1,54 @@
 from rest_framework import serializers
-from django.contrib.auth import authenticate
-from .models import CustomUser
+from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+User = get_user_model()  # внутри лежит AUTH_USER_MODEL
 
 
-class CustomAuthTokenSerializer(serializers.Serializer):
-    email = serializers.CharField()
-    password = serializers.CharField(
-        write_only=True  # post only
-    )
-    token = serializers.CharField(
-        read_only=True  # get only
-    )
+class RegistrationSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=100)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(min_length=6, required=True)
+    password_confirm = serializers.CharField(min_length=6, required=True)
+
+    def validate_email(self, email):
+        if User.objects.filter(email=email).exists():  # проверили имейл на соответствие базе данных перед сохранением
+            raise serializers.ValidationError('email already exists')
+        return email
+
+    def validate(self, attrs: dict):
+        pass1 = attrs.get('password')
+        pass2 = attrs.pop('password_confirm')  # удаляем поле чтобы оно не пошло в базу данных т.к. оно нам там не нужно
+        if pass1 != pass2:
+            raise serializers.ValidationError("passwords don't match")
+        return attrs
+
+    def save(self):
+        data = self.validated_data  # сюда падает validate_email и validate
+        user = User.objects.create_user(**data)
+        user.set_activation_code()
+        user.send_activation_email()
+
+
+class LoginSerializer(TokenObtainPairSerializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(min_length=6)
+
+    def validate_email(self, email):
+        if not User.objects.filter(
+                email=email).exists():  # проверили имейл на соответствие базе данных перед сохранением
+            raise serializers.ValidationError("email doesn't exists")
+        return email
 
     def validate(self, attrs):
         email = attrs.get('email')
-        password = attrs.get('password')
-
-        if email and password:
-            user = authenticate(request=self.context.get('request'),
-                                email=email, password=password)
-
-            if not user:
-                msg = 'Unable to log in with provided credentials.'
-                raise serializers.ValidationError(msg, code='authorization')
-        else:
-            msg = 'Must include "username" and "password".'
-            raise serializers.ValidationError(msg, code='authorization')
-
-        attrs['user'] = user
+        password = attrs.pop('password')
+        user = User.objects.get(email=email)
+        if not user.check_password(password):
+            raise serializers.ValidationError('Invalid password')
+        if user and user.is_active:
+            refresh = self.get_token(user)
+            attrs['refresh'] = str(refresh)
+            attrs['access'] = str(refresh.access_token)
         return attrs
-
-
-class RegisterSerializer(serializers.ModelSerializer):
-    password_confirm = serializers.CharField(min_length=8, write_only=True)
-
-    class Meta:
-        model = CustomUser
-        fields = ('email', "password", "password_confirm")
-
-    def validate(self, attrs): #вызывается во время is_valid
-        password = attrs.get("password")
-        password_confirm = attrs.pop("password_confirm")
-
-        if len(password) < 8 or len(password_confirm) < 8:
-            raise serializers.ValidationError('password or password_confirm <8 characters')
-
-        if password != password_confirm:
-            raise serializers.ValidationError("password or password_confirm not equal!!!")
-
-        return attrs
-
-    def create(self, validated_data):
-        return CustomUser.objects.create_user(**validated_data)
+    

@@ -7,7 +7,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 import django_filters.rest_framework as filters
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from .permissions import IsAuthororAdminPermission
 from .paginations import ProductPagination
 from .serializers import *
@@ -31,7 +31,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsAdminUser()]
+            return [IsAdminUser(), ]
         elif self.action in ['like', ]:
             return [IsAuthenticated()]
         return []    

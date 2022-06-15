@@ -14,19 +14,7 @@ router = SimpleRouter()
 router.register('products', ProductViewSet)
 router.register('reviews', ReviewViewSet)
 router.register('order', OrderViewSet)
-# router.register('favorites', FavortiteView)
 
-# urlpatterns = [
-#     path('admin/', admin.site.urls),
-#     path('account/', include("account.urls")),
-#     path('category/', include('category.urls')),
-#     # path('product/', include('product.urls')),
-#     path('favorites/', FavortiteView.as_view()),
-#     path('shoppingcart/', include('cart.urls')),
-#     path('order/', include('order.urls')),
-#     path('', include(router.urls)),
-    
-# ]
 
 schema_view = get_schema_view(
    openapi.Info(
