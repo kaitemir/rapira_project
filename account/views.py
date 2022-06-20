@@ -5,11 +5,13 @@ from rest_framework.generics import get_object_or_404
 from account.serializers import RegistrationSerializer, LoginSerializer
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
+from drf_yasg.utils import swagger_auto_schema
 
 User = get_user_model()
 
 
 class RegistrationView(APIView):
+    @swagger_auto_schema(request_body=RegistrationSerializer)
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
