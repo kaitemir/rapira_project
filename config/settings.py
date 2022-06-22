@@ -102,6 +102,7 @@ DATABASES = {
 }
 
 DATABASES['default'].update(dj_database_url.config(conn_max_age=600))
+DATABASES['default'] = dj_database_url.config(default='postgres://jtzpxwhdvunorh:6106a8d35c2c41978e4cc894c41a2f36000f1e92df876c3bdc55ff907d582964@ec2-54-157-16-196.compute-1.amazonaws.com/dahrnnvcvq6e8d')
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
