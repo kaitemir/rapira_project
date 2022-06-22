@@ -62,6 +62,6 @@ class CustomUser(AbstractBaseUser):
             self.save()
 
     def send_activation_email(self):
-        activation_url = f'http://54.245.142.239/account/activate/{self.activation_code}'
+        activation_url = f'https://rapiraproject.herokuapp.com/account/activate/{self.activation_code}'
         message = f'You are signed up sucessfuly! Activate your account {activation_url}'
         send_mail("activate your account", message, 'test@gmail.com', [self.email, ], fail_silently=False)
